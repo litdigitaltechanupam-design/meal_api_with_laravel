@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreWeeklyMenuItemRequest;
-use App\Http\Requests\Admin\UpdateWeeklyMenuItemRequest;
+use App\Http\Requests\Admin\StoreWeeklyMenuRequest;
+use App\Http\Requests\Admin\UpdateWeeklyMenuRequest;
 use App\Models\MealPackage;
-use App\Models\WeeklyMenuItem;
+use App\Models\WeeklyMenu;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WeeklyMenuController extends Controller
 {
@@ -20,8 +21,8 @@ class WeeklyMenuController extends Controller
             'status' => ['nullable', 'in:active,inactive'],
         ]);
 
-        $items = WeeklyMenuItem::query()
-            ->with('mealPackage')
+        $weeklyMenus = WeeklyMenu::query()
+            ->with('items.mealPackage')
             ->when(! empty($filters['day_of_week']), fn ($query) => $query->where('day_of_week', $filters['day_of_week']))
             ->when(! empty($filters['meal_time']), fn ($query) => $query->where('meal_time', $filters['meal_time']))
             ->when(! empty($filters['status']), fn ($query) => $query->where('status', $filters['status']))
@@ -31,76 +32,101 @@ class WeeklyMenuController extends Controller
 
         return response()->json([
             'filters' => $filters,
-            'weekly_menu_items' => $items,
+            'weekly_menus' => $weeklyMenus,
         ]);
     }
 
-    public function store(StoreWeeklyMenuItemRequest $request): JsonResponse
+    public function store(StoreWeeklyMenuRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $this->ensurePackageIsActive((int) $data['meal_package_id']);
+        $this->ensurePackagesAreActive($data['items']);
 
-        $item = WeeklyMenuItem::create([
-            'day_of_week' => $data['day_of_week'],
-            'meal_time' => $data['meal_time'],
-            'meal_package_id' => $data['meal_package_id'],
-            'status' => $data['status'] ?? 'active',
-            'created_by' => $request->user()->id,
-            'updated_by' => $request->user()->id,
-        ]);
+        $weeklyMenu = DB::transaction(function () use ($request, $data) {
+            $weeklyMenu = WeeklyMenu::updateOrCreate(
+                [
+                    'day_of_week' => $data['day_of_week'],
+                    'meal_time' => $data['meal_time'],
+                ],
+                [
+                    'status' => $data['status'] ?? 'active',
+                    'created_by' => $request->user()->id,
+                    'updated_by' => $request->user()->id,
+                ]
+            );
+
+            $weeklyMenu->items()->delete();
+            $weeklyMenu->items()->createMany(collect($data['items'])->map(fn ($item) => [
+                'meal_package_id' => $item['meal_package_id'],
+            ])->all());
+
+            return $weeklyMenu->load('items.mealPackage');
+        });
 
         return response()->json([
-            'message' => 'Weekly menu item created successfully.',
-            'weekly_menu_item' => $item->load('mealPackage'),
+            'message' => 'Weekly menu saved successfully.',
+            'weekly_menu' => $weeklyMenu,
         ], 201);
     }
 
-    public function show(WeeklyMenuItem $weeklyMenuItem): JsonResponse
+    public function show(WeeklyMenu $weeklyMenu): JsonResponse
     {
         return response()->json([
-            'weekly_menu_item' => $weeklyMenuItem->load('mealPackage'),
+            'weekly_menu' => $weeklyMenu->load('items.mealPackage'),
         ]);
     }
 
-    public function update(UpdateWeeklyMenuItemRequest $request, WeeklyMenuItem $weeklyMenuItem): JsonResponse
+    public function update(UpdateWeeklyMenuRequest $request, WeeklyMenu $weeklyMenu): JsonResponse
     {
         $data = $request->validated();
-
-        if (array_key_exists('meal_package_id', $data)) {
-            $this->ensurePackageIsActive((int) $data['meal_package_id']);
+        if (array_key_exists('items', $data)) {
+            $this->ensurePackagesAreActive($data['items']);
         }
 
-        $weeklyMenuItem->fill($data);
-        $weeklyMenuItem->updated_by = $request->user()->id;
-        $weeklyMenuItem->save();
+        DB::transaction(function () use ($request, $data, $weeklyMenu) {
+            $weeklyMenu->fill([
+                'day_of_week' => $data['day_of_week'] ?? $weeklyMenu->day_of_week,
+                'meal_time' => $data['meal_time'] ?? $weeklyMenu->meal_time,
+                'status' => $data['status'] ?? $weeklyMenu->status,
+                'updated_by' => $request->user()->id,
+            ]);
+            $weeklyMenu->save();
+
+            if (array_key_exists('items', $data)) {
+                $weeklyMenu->items()->delete();
+                $weeklyMenu->items()->createMany(collect($data['items'])->map(fn ($item) => [
+                    'meal_package_id' => $item['meal_package_id'],
+                ])->all());
+            }
+        });
 
         return response()->json([
-            'message' => 'Weekly menu item updated successfully.',
-            'weekly_menu_item' => $weeklyMenuItem->fresh()->load('mealPackage'),
+            'message' => 'Weekly menu updated successfully.',
+            'weekly_menu' => $weeklyMenu->fresh()->load('items.mealPackage'),
         ]);
     }
 
-    public function updateStatus(Request $request, WeeklyMenuItem $weeklyMenuItem): JsonResponse
+    public function updateStatus(Request $request, WeeklyMenu $weeklyMenu): JsonResponse
     {
         $data = $request->validate([
             'status' => ['required', 'in:active,inactive'],
         ]);
 
-        $weeklyMenuItem->update([
+        $weeklyMenu->update([
             'status' => $data['status'],
             'updated_by' => $request->user()->id,
         ]);
 
         return response()->json([
-            'message' => 'Weekly menu item status updated successfully.',
-            'weekly_menu_item' => $weeklyMenuItem->fresh()->load('mealPackage'),
+            'message' => 'Weekly menu status updated successfully.',
+            'weekly_menu' => $weeklyMenu->fresh()->load('items.mealPackage'),
         ]);
     }
 
-    private function ensurePackageIsActive(int $mealPackageId): void
+    private function ensurePackagesAreActive(array $items): void
     {
-        $package = MealPackage::query()->findOrFail($mealPackageId);
-
-        abort_if($package->status !== 'active', 422, 'Inactive package cannot be assigned to weekly menu.');
+        foreach ($items as $item) {
+            $package = MealPackage::query()->findOrFail($item['meal_package_id']);
+            abort_if($package->status !== 'active', 422, 'Inactive package cannot be assigned to weekly menu.');
+        }
     }
 }

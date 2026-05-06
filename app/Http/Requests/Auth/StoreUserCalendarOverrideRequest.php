@@ -5,7 +5,7 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreUserMealCalendarOverrideRequest extends FormRequest
+class StoreUserCalendarOverrideRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,8 +17,10 @@ class StoreUserMealCalendarOverrideRequest extends FormRequest
         return [
             'schedule_date' => ['required', 'date'],
             'meal_time' => ['required', Rule::in(['lunch', 'dinner'])],
-            'meal_package_id' => ['nullable', 'integer', 'exists:meal_packages,id'],
             'is_off' => ['nullable', 'boolean'],
+            'items' => ['required_without:is_off', 'array'],
+            'items.*.meal_package_id' => ['required_with:items', 'integer', 'exists:meal_packages,id', 'distinct'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
         ];
     }
 }

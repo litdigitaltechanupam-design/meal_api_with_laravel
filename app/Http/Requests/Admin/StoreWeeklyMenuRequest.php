@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreUserWeeklyMealScheduleRequest extends FormRequest
+class StoreWeeklyMenuRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,8 +17,9 @@ class StoreUserWeeklyMealScheduleRequest extends FormRequest
         return [
             'day_of_week' => ['required', Rule::in(['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'])],
             'meal_time' => ['required', Rule::in(['lunch', 'dinner'])],
-            'meal_package_id' => ['nullable', 'integer', 'exists:meal_packages,id'],
-            'is_off' => ['nullable', 'boolean'],
+            'status' => ['nullable', Rule::in(['active', 'inactive'])],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.meal_package_id' => ['required', 'integer', 'exists:meal_packages,id', 'distinct'],
         ];
     }
 }

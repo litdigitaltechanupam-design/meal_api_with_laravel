@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class WeeklyMenuItem extends Model
+class UserWeeklyScheduleItem extends Model
 {
     protected $fillable = [
-        'weekly_menu_id',
+        'user_weekly_schedule_id',
         'meal_package_id',
+        'quantity',
     ];
 
-    public function weeklyMenu(): BelongsTo
+    public function userWeeklySchedule(): BelongsTo
     {
-        return $this->belongsTo(WeeklyMenu::class);
+        return $this->belongsTo(UserWeeklySchedule::class);
     }
 
     public function mealPackage(): BelongsTo

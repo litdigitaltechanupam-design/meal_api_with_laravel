@@ -6,9 +6,9 @@ use App\Http\Controllers\Api\Admin\WeeklyMenuController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\MealPackageController as UserMealPackageController;
 use App\Http\Controllers\Api\Auth\ProfileController;
-use App\Http\Controllers\Api\Auth\UserMealCalendarController;
+use App\Http\Controllers\Api\Auth\UserCalendarController;
 use App\Http\Controllers\Api\Auth\UserAddressController;
-use App\Http\Controllers\Api\Auth\UserWeeklyMealScheduleController;
+use App\Http\Controllers\Api\Auth\UserWeeklyScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -31,17 +31,17 @@ Route::prefix('auth')->group(function (): void {
         Route::get('/meal-packages', [UserMealPackageController::class, 'index']);
         Route::get('/meal-packages/{mealPackage}', [UserMealPackageController::class, 'show']);
 
-        Route::get('/weekly-menu', [UserMealCalendarController::class, 'weeklyMenu']);
+        Route::get('/weekly-menus', [UserCalendarController::class, 'weeklyMenus']);
 
-        Route::get('/weekly-schedules', [UserWeeklyMealScheduleController::class, 'index']);
-        Route::post('/weekly-schedules', [UserWeeklyMealScheduleController::class, 'store']);
-        Route::put('/weekly-schedules/{weeklySchedule}', [UserWeeklyMealScheduleController::class, 'update']);
+        Route::get('/user-weekly-schedules', [UserWeeklyScheduleController::class, 'index']);
+        Route::post('/user-weekly-schedules', [UserWeeklyScheduleController::class, 'store']);
+        Route::put('/user-weekly-schedules/{userWeeklySchedule}', [UserWeeklyScheduleController::class, 'update']);
 
-        Route::get('/meal-calendar', [UserMealCalendarController::class, 'index']);
-        Route::post('/meal-calendar', [UserMealCalendarController::class, 'store']);
-        Route::put('/meal-calendar/{calendarOverride}', [UserMealCalendarController::class, 'update']);
-        Route::delete('/meal-calendar/{calendarOverride}', [UserMealCalendarController::class, 'destroy']);
-        Route::get('/meal-calendar/month-summary', [UserMealCalendarController::class, 'month']);
+        Route::get('/user-calendar', [UserCalendarController::class, 'index']);
+        Route::post('/user-calendar', [UserCalendarController::class, 'store']);
+        Route::put('/user-calendar/{userCalendarOverride}', [UserCalendarController::class, 'update']);
+        Route::delete('/user-calendar/{userCalendarOverride}', [UserCalendarController::class, 'destroy']);
+        Route::get('/user-calendar/month-summary', [UserCalendarController::class, 'monthSummary']);
     });
 });
 
@@ -54,11 +54,11 @@ Route::prefix('admin')
         Route::put('/meal-packages/{mealPackage}', [AdminMealPackageController::class, 'update']);
         Route::patch('/meal-packages/{mealPackage}/status', [AdminMealPackageController::class, 'updateStatus']);
 
-        Route::get('/weekly-menu', [WeeklyMenuController::class, 'index']);
-        Route::post('/weekly-menu', [WeeklyMenuController::class, 'store']);
-        Route::get('/weekly-menu/{weeklyMenuItem}', [WeeklyMenuController::class, 'show']);
-        Route::put('/weekly-menu/{weeklyMenuItem}', [WeeklyMenuController::class, 'update']);
-        Route::patch('/weekly-menu/{weeklyMenuItem}/status', [WeeklyMenuController::class, 'updateStatus']);
+        Route::get('/weekly-menus', [WeeklyMenuController::class, 'index']);
+        Route::post('/weekly-menus', [WeeklyMenuController::class, 'store']);
+        Route::get('/weekly-menus/{weeklyMenu}', [WeeklyMenuController::class, 'show']);
+        Route::put('/weekly-menus/{weeklyMenu}', [WeeklyMenuController::class, 'update']);
+        Route::patch('/weekly-menus/{weeklyMenu}/status', [WeeklyMenuController::class, 'updateStatus']);
     });
 
 Route::prefix('management')

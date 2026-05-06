@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\UserMealCalendarOverride;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -14,13 +13,13 @@ class UserMealCalendarService
         $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $end = $start->copy()->endOfMonth();
 
-        $weeklySchedules = $user->weeklyMealSchedules()
-            ->with('mealPackage')
+        $weeklySchedules = $user->userWeeklySchedules()
+            ->with('items.mealPackage')
             ->get()
             ->keyBy(fn ($schedule) => $schedule->day_of_week.'_'.$schedule->meal_time);
 
-        $overrides = $user->mealCalendarOverrides()
-            ->with('mealPackage')
+        $overrides = $user->userCalendarOverrides()
+            ->with('items.mealPackage')
             ->whereBetween('schedule_date', [$start->toDateString(), $end->toDateString()])
             ->get()
             ->keyBy(fn ($override) => $override->schedule_date->toDateString().'_'.$override->meal_time);
@@ -69,15 +68,30 @@ class UserMealCalendarService
         $source = $overrides->get($overrideKey) ?: $weeklySchedules->get($weeklyKey);
         $hasSource = $source !== null;
         $isOff = ! $hasSource || (bool) $source->is_off;
-        $package = $hasSource ? $source->mealPackage : null;
-        $price = $isOff || ! $package ? 0 : (float) $package->price;
+        $items = collect();
+        $price = 0;
+
+        if (! $isOff && $hasSource) {
+            $items = $source->items->map(function ($item) use (&$price) {
+                $unitPrice = (float) $item->mealPackage->price;
+                $subtotal = $unitPrice * $item->quantity;
+                $price += $subtotal;
+
+                return [
+                    'meal_package_id' => $item->meal_package_id,
+                    'package_name' => $item->mealPackage->name,
+                    'description' => $item->mealPackage->description,
+                    'quantity' => $item->quantity,
+                    'unit_price' => round($unitPrice, 2),
+                    'subtotal' => round($subtotal, 2),
+                ];
+            })->values();
+        }
 
         return [
             'meal_time' => $mealTime,
             'is_off' => $isOff,
-            'package_id' => $package?->id,
-            'package_name' => $package?->name,
-            'description' => $package?->description,
+            'items' => $items,
             'price' => round($price, 2),
             'source' => $overrides->has($overrideKey) ? 'override' : 'weekly_default',
         ];

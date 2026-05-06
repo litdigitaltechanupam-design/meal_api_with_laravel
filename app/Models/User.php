@@ -62,14 +62,14 @@ class User extends Authenticatable
         return $this->hasMany(ApiToken::class);
     }
 
-    public function weeklyMealSchedules(): HasMany
+    public function userWeeklySchedules(): HasMany
     {
-        return $this->hasMany(UserWeeklyMealSchedule::class);
+        return $this->hasMany(UserWeeklySchedule::class);
     }
 
-    public function mealCalendarOverrides(): HasMany
+    public function userCalendarOverrides(): HasMany
     {
-        return $this->hasMany(UserMealCalendarOverride::class);
+        return $this->hasMany(UserCalendarOverride::class);
     }
 
     public function issueApiToken(string $name = 'default'): array

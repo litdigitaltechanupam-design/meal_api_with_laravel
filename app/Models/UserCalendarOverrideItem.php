@@ -5,24 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserMealCalendarOverride extends Model
+class UserCalendarOverrideItem extends Model
 {
     protected $fillable = [
-        'user_id',
-        'schedule_date',
-        'meal_time',
+        'user_calendar_override_id',
         'meal_package_id',
-        'is_off',
+        'quantity',
     ];
 
-    protected $casts = [
-        'schedule_date' => 'date',
-        'is_off' => 'boolean',
-    ];
-
-    public function user(): BelongsTo
+    public function userCalendarOverride(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(UserCalendarOverride::class);
     }
 
     public function mealPackage(): BelongsTo

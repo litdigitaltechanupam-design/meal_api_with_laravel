@@ -2,15 +2,17 @@
 
 namespace App\Http\Requests\Auth;
 
-class UpdateUserWeeklyMealScheduleRequest extends StoreUserWeeklyMealScheduleRequest
+class UpdateUserWeeklyScheduleRequest extends StoreUserWeeklyScheduleRequest
 {
     public function rules(): array
     {
         return [
             'day_of_week' => ['sometimes', 'required', 'in:saturday,sunday,monday,tuesday,wednesday,thursday,friday'],
             'meal_time' => ['sometimes', 'required', 'in:lunch,dinner'],
-            'meal_package_id' => ['nullable', 'integer', 'exists:meal_packages,id'],
             'is_off' => ['nullable', 'boolean'],
+            'items' => ['sometimes', 'array'],
+            'items.*.meal_package_id' => ['required_with:items', 'integer', 'exists:meal_packages,id', 'distinct'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
         ];
     }
 }

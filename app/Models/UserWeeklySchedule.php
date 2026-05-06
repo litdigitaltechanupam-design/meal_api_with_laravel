@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserWeeklyMealSchedule extends Model
+class UserWeeklySchedule extends Model
 {
     protected $fillable = [
         'user_id',
         'day_of_week',
         'meal_time',
-        'meal_package_id',
         'is_off',
     ];
 
@@ -24,8 +24,8 @@ class UserWeeklyMealSchedule extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function mealPackage(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(MealPackage::class);
+        return $this->hasMany(UserWeeklyScheduleItem::class);
     }
 }
