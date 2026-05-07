@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreUserWeeklyScheduleRequest extends FormRequest
+class StoreWeeklyScheduleRequest extends FormRequest
 {
     public function authorize(): bool
     {

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Customer;
 
-class UpdateUserCalendarOverrideRequest extends StoreUserCalendarOverrideRequest
+class UpdateCalendarOverrideRequest extends StoreCalendarOverrideRequest
 {
     public function rules(): array
     {

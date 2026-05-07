@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             MealModuleSeeder::class,
             UserWeeklyScheduleSeeder::class,
+            WalletSeeder::class,
         ]);
     }
 }

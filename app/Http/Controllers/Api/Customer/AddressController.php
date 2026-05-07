@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\StoreUserAddressRequest;
-use App\Http\Requests\Auth\UpdateUserAddressRequest;
+use App\Http\Requests\Customer\StoreAddressRequest;
+use App\Http\Requests\Customer\UpdateAddressRequest;
 use App\Models\UserAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class UserAddressController extends Controller
+class AddressController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
@@ -21,7 +21,7 @@ class UserAddressController extends Controller
         ]);
     }
 
-    public function store(StoreUserAddressRequest $request): JsonResponse
+    public function store(StoreAddressRequest $request): JsonResponse
     {
         $user = $request->user();
         $data = $request->validated();
@@ -47,7 +47,7 @@ class UserAddressController extends Controller
         ]);
     }
 
-    public function update(UpdateUserAddressRequest $request, UserAddress $address): JsonResponse
+    public function update(UpdateAddressRequest $request, UserAddress $address): JsonResponse
     {
         $this->ensureOwnership($request, $address);
 

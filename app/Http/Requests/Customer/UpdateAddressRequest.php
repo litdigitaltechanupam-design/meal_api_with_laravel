@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Customer;
 
-class UpdateUserAddressRequest extends StoreUserAddressRequest
+class UpdateAddressRequest extends StoreAddressRequest
 {
     public function rules(): array
     {

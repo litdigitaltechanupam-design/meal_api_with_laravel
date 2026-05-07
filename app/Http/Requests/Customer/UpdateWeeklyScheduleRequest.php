@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Customer;
 
-class UpdateUserWeeklyScheduleRequest extends StoreUserWeeklyScheduleRequest
+class UpdateWeeklyScheduleRequest extends StoreWeeklyScheduleRequest
 {
     public function rules(): array
     {

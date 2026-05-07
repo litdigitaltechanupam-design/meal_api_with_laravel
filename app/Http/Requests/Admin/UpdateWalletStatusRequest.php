@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class UserMealCalendarMonthRequest extends FormRequest
+class UpdateWalletStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +15,7 @@ class UserMealCalendarMonthRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'month' => ['required', 'date_format:Y-m'],
+            'status' => ['required', Rule::in(['active', 'inactive', 'blocked'])],
         ];
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\StoreUserWeeklyScheduleRequest;
-use App\Http\Requests\Auth\UpdateUserWeeklyScheduleRequest;
+use App\Http\Requests\Customer\StoreWeeklyScheduleRequest;
+use App\Http\Requests\Customer\UpdateWeeklyScheduleRequest;
 use App\Models\MealPackage;
 use App\Models\UserWeeklySchedule;
 use App\Models\WeeklyMenu;
@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UserWeeklyScheduleController extends Controller
+class WeeklyScheduleController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
@@ -26,7 +26,7 @@ class UserWeeklyScheduleController extends Controller
         return response()->json(['user_weekly_schedules' => $schedules]);
     }
 
-    public function store(StoreUserWeeklyScheduleRequest $request): JsonResponse
+    public function store(StoreWeeklyScheduleRequest $request): JsonResponse
     {
         $payload = $this->normalizePayload($request->validated());
         $this->ensureAllowedSelection($payload['day_of_week'], $payload['meal_time'], $payload['is_off'], $payload['items']);
@@ -57,7 +57,7 @@ class UserWeeklyScheduleController extends Controller
         ], 201);
     }
 
-    public function update(UpdateUserWeeklyScheduleRequest $request, UserWeeklySchedule $userWeeklySchedule): JsonResponse
+    public function update(UpdateWeeklyScheduleRequest $request, UserWeeklySchedule $userWeeklySchedule): JsonResponse
     {
         $this->ensureOwnership($request, $userWeeklySchedule);
 

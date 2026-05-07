@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\MealPackageListRequest;
+use App\Http\Requests\Customer\MealPackageListRequest;
 use App\Models\MealPackage;
 use Illuminate\Http\JsonResponse;
 

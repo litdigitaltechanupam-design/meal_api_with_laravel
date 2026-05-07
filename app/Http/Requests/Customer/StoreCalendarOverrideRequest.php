@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreUserCalendarOverrideRequest extends FormRequest
+class StoreCalendarOverrideRequest extends FormRequest
 {
     public function authorize(): bool
     {

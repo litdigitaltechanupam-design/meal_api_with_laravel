@@ -172,7 +172,7 @@
       ]
     },
     {
-      "name": "Profile And Address",
+      "name": "Profile",
       "item": [
         {
           "name": "Get Profile",
@@ -214,48 +214,6 @@
               "raw": "{\n  \"name\": \"Customer Updated\",\n  \"phone\": \"01712345679\",\n  \"email\": \"customer.updated@example.com\"\n}"
             },
             "url": "{{base_url}}/api/auth/profile"
-          }
-        },
-        {
-          "name": "List Addresses",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": "{{base_url}}/api/auth/addresses"
-          }
-        },
-        {
-          "name": "Create Address",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"label\": \"Home\",\n  \"address_line\": \"House 12, Road 5\",\n  \"area\": \"Mirpur 10\",\n  \"city\": \"Dhaka\",\n  \"notes\": \"Call before delivery\",\n  \"is_default\": true\n}"
-            },
-            "url": "{{base_url}}/api/auth/addresses"
           }
         }
       ]
@@ -603,8 +561,50 @@
       ]
     },
     {
-      "name": "User Meal Flow",
+      "name": "Customer Module",
       "item": [
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/addresses"
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Home\",\n  \"address_line\": \"House 12, Road 5\",\n  \"area\": \"Mirpur 10\",\n  \"city\": \"Dhaka\",\n  \"notes\": \"Call before delivery\",\n  \"is_default\": true\n}"
+            },
+            "url": "{{base_url}}/api/customer/addresses"
+          }
+        },
         {
           "name": "List Active Meal Packages",
           "request": {
@@ -619,7 +619,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/meal-packages"
+            "url": "{{base_url}}/api/customer/meal-packages"
           }
         },
         {
@@ -636,7 +636,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/meal-packages/{{meal_package_id}}"
+            "url": "{{base_url}}/api/customer/meal-packages/{{meal_package_id}}"
           }
         },
         {
@@ -653,7 +653,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/weekly-menus"
+            "url": "{{base_url}}/api/customer/weekly-menus"
           }
         },
         {
@@ -670,7 +670,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/user-weekly-schedules"
+            "url": "{{base_url}}/api/customer/weekly-schedules"
           }
         },
         {
@@ -695,7 +695,7 @@
               "mode": "raw",
               "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 1 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
-            "url": "{{base_url}}/api/auth/user-weekly-schedules"
+            "url": "{{base_url}}/api/customer/weekly-schedules"
           }
         },
         {
@@ -720,7 +720,7 @@
               "mode": "raw",
               "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
-            "url": "{{base_url}}/api/auth/user-weekly-schedules/{{user_weekly_schedule_id}}"
+            "url": "{{base_url}}/api/customer/weekly-schedules/{{user_weekly_schedule_id}}"
           }
         },
         {
@@ -737,7 +737,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/user-calendar?month=2026-05"
+            "url": "{{base_url}}/api/customer/calendar?month=2026-05"
           }
         },
         {
@@ -762,7 +762,7 @@
               "mode": "raw",
               "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 6, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
-            "url": "{{base_url}}/api/auth/user-calendar"
+            "url": "{{base_url}}/api/customer/calendar"
           }
         },
         {
@@ -787,7 +787,7 @@
               "mode": "raw",
               "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": true,\n  \"items\": []\n}"
             },
-            "url": "{{base_url}}/api/auth/user-calendar/{{user_calendar_override_id}}"
+            "url": "{{base_url}}/api/customer/calendar/{{user_calendar_override_id}}"
           }
         },
         {
@@ -804,7 +804,7 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/user-calendar/{{user_calendar_override_id}}"
+            "url": "{{base_url}}/api/customer/calendar/{{user_calendar_override_id}}"
           }
         },
         {
@@ -821,7 +821,83 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{base_url}}/api/auth/user-calendar/month-summary?month=2026-05"
+            "url": "{{base_url}}/api/customer/calendar/month-summary?month=2026-05"
+          }
+        },
+        {
+          "name": "Customer Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/wallet"
+          }
+        },
+        {
+          "name": "Customer Wallet Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/wallet/transactions"
+          }
+        },
+        {
+          "name": "Customer Wallet Payment Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/wallet/payment-requests"
+          }
+        },
+        {
+          "name": "Create Customer Wallet Payment Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"payment_method\": \"bkash\",\n  \"note\": \"Customer top-up request\"\n}"
+            },
+            "url": "{{base_url}}/api/customer/wallet/payment-requests"
           }
         }
       ]

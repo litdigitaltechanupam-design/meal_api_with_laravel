@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\StoreUserCalendarOverrideRequest;
-use App\Http\Requests\Auth\UpdateUserCalendarOverrideRequest;
-use App\Http\Requests\Auth\UserCalendarMonthRequest;
+use App\Http\Requests\Customer\StoreCalendarOverrideRequest;
+use App\Http\Requests\Customer\UpdateCalendarOverrideRequest;
+use App\Http\Requests\Customer\CalendarMonthRequest;
 use App\Models\MealPackage;
 use App\Models\UserCalendarOverride;
 use App\Models\WeeklyMenu;
@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UserCalendarController extends Controller
+class CalendarController extends Controller
 {
     public function __construct(private UserMealCalendarService $calendarService)
     {
@@ -61,7 +61,7 @@ class UserCalendarController extends Controller
         return response()->json(['user_calendar_overrides' => $query->get()]);
     }
 
-    public function store(StoreUserCalendarOverrideRequest $request): JsonResponse
+    public function store(StoreCalendarOverrideRequest $request): JsonResponse
     {
         $payload = $this->normalizePayload($request->validated());
         $this->ensureAllowedSelection($payload['schedule_date'], $payload['meal_time'], $payload['is_off'], $payload['items']);
@@ -92,7 +92,7 @@ class UserCalendarController extends Controller
         ], 201);
     }
 
-    public function update(UpdateUserCalendarOverrideRequest $request, UserCalendarOverride $userCalendarOverride): JsonResponse
+    public function update(UpdateCalendarOverrideRequest $request, UserCalendarOverride $userCalendarOverride): JsonResponse
     {
         $this->ensureOwnership($request, $userCalendarOverride);
 
@@ -133,7 +133,7 @@ class UserCalendarController extends Controller
         return response()->json(['message' => 'Calendar override deleted successfully.']);
     }
 
-    public function monthSummary(UserCalendarMonthRequest $request): JsonResponse
+    public function monthSummary(CalendarMonthRequest $request): JsonResponse
     {
         return response()->json(
             $this->calendarService->buildMonth($request->user(), $request->string('month')->toString())
