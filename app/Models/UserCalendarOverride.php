@@ -10,6 +10,7 @@ class UserCalendarOverride extends Model
 {
     protected $fillable = [
         'user_id',
+        'address_id',
         'schedule_date',
         'meal_time',
         'is_off',
@@ -23,6 +24,11 @@ class UserCalendarOverride extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
     public function items(): HasMany

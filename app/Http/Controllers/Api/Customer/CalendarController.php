@@ -7,6 +7,7 @@ use App\Http\Requests\Customer\StoreCalendarOverrideRequest;
 use App\Http\Requests\Customer\UpdateCalendarOverrideRequest;
 use App\Http\Requests\Customer\CalendarMonthRequest;
 use App\Models\MealPackage;
+use App\Models\UserAddress;
 use App\Models\UserCalendarOverride;
 use App\Models\WeeklyMenu;
 use App\Services\UserMealCalendarService;
@@ -48,7 +49,7 @@ class CalendarController extends Controller
 
         $query = $request->user()
             ->userCalendarOverrides()
-            ->with('items.mealPackage')
+            ->with(['address.area', 'items.mealPackage'])
             ->orderBy('schedule_date')
             ->orderByRaw("FIELD(meal_time, 'lunch', 'dinner')");
 
@@ -64,6 +65,7 @@ class CalendarController extends Controller
     public function store(StoreCalendarOverrideRequest $request): JsonResponse
     {
         $payload = $this->normalizePayload($request->validated());
+        $this->ensureAddressOwnership($request, $payload['address_id'], $payload['is_off']);
         $this->ensureAllowedSelection($payload['schedule_date'], $payload['meal_time'], $payload['is_off'], $payload['items']);
 
         $override = DB::transaction(function () use ($request, $payload) {
@@ -74,6 +76,7 @@ class CalendarController extends Controller
                     'meal_time' => $payload['meal_time'],
                 ],
                 [
+                    'address_id' => $payload['address_id'],
                     'is_off' => $payload['is_off'],
                 ]
             );
@@ -83,7 +86,7 @@ class CalendarController extends Controller
                 $override->items()->createMany($payload['items']);
             }
 
-            return $override->load('items.mealPackage');
+            return $override->load(['address.area', 'items.mealPackage']);
         });
 
         return response()->json([
@@ -101,13 +104,16 @@ class CalendarController extends Controller
                 'schedule_date' => $userCalendarOverride->schedule_date->toDateString(),
                 'meal_time' => $userCalendarOverride->meal_time,
                 'is_off' => $userCalendarOverride->is_off,
+                'address_id' => $userCalendarOverride->address_id,
             ],
             $request->validated()
         ));
+        $this->ensureAddressOwnership($request, $payload['address_id'], $payload['is_off']);
         $this->ensureAllowedSelection($payload['schedule_date'], $payload['meal_time'], $payload['is_off'], $payload['items']);
 
         DB::transaction(function () use ($userCalendarOverride, $payload) {
             $userCalendarOverride->update([
+                'address_id' => $payload['address_id'],
                 'schedule_date' => $payload['schedule_date'],
                 'meal_time' => $payload['meal_time'],
                 'is_off' => $payload['is_off'],
@@ -121,7 +127,7 @@ class CalendarController extends Controller
 
         return response()->json([
             'message' => 'Calendar override updated successfully.',
-            'user_calendar_override' => $userCalendarOverride->fresh()->load('items.mealPackage'),
+            'user_calendar_override' => $userCalendarOverride->fresh()->load(['address.area', 'items.mealPackage']),
         ]);
     }
 
@@ -145,6 +151,7 @@ class CalendarController extends Controller
         $isOff = (bool) ($data['is_off'] ?? false);
 
         return [
+            'address_id' => $isOff ? null : ($data['address_id'] ?? null),
             'schedule_date' => Carbon::parse($data['schedule_date'])->toDateString(),
             'meal_time' => $data['meal_time'],
             'is_off' => $isOff,
@@ -184,5 +191,21 @@ class CalendarController extends Controller
     private function ensureOwnership(Request $request, UserCalendarOverride $userCalendarOverride): void
     {
         abort_unless($userCalendarOverride->user_id === $request->user()->id, 403, 'You do not have permission to access this calendar override.');
+    }
+
+    private function ensureAddressOwnership(Request $request, ?int $addressId, bool $isOff): void
+    {
+        if ($isOff) {
+            return;
+        }
+
+        abort_if(empty($addressId), 422, 'Address is required when meal is on.');
+
+        $addressExists = UserAddress::query()
+            ->where('id', $addressId)
+            ->where('user_id', $request->user()->id)
+            ->exists();
+
+        abort_unless($addressExists, 422, 'Selected address does not belong to this customer.');
     }
 }

@@ -14,12 +14,12 @@ class UserMealCalendarService
         $end = $start->copy()->endOfMonth();
 
         $weeklySchedules = $user->userWeeklySchedules()
-            ->with('items.mealPackage')
+            ->with(['address.area', 'items.mealPackage'])
             ->get()
             ->keyBy(fn ($schedule) => $schedule->day_of_week.'_'.$schedule->meal_time);
 
         $overrides = $user->userCalendarOverrides()
-            ->with('items.mealPackage')
+            ->with(['address.area', 'items.mealPackage'])
             ->whereBetween('schedule_date', [$start->toDateString(), $end->toDateString()])
             ->get()
             ->keyBy(fn ($override) => $override->schedule_date->toDateString().'_'.$override->meal_time);
@@ -91,6 +91,17 @@ class UserMealCalendarService
         return [
             'meal_time' => $mealTime,
             'is_off' => $isOff,
+            'address' => $isOff || ! $hasSource || ! $source->address ? null : [
+                'id' => $source->address->id,
+                'label' => $source->address->label,
+                'address_line' => $source->address->address_line,
+                'city' => $source->address->city,
+                'area' => $source->address->area ? [
+                    'id' => $source->address->area->id,
+                    'name' => $source->address->area->name,
+                    'city' => $source->address->area->city,
+                ] : null,
+            ],
             'items' => $items,
             'price' => round($price, 2),
             'source' => $overrides->has($overrideKey) ? 'override' : 'weekly_default',

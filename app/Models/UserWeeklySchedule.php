@@ -10,6 +10,7 @@ class UserWeeklySchedule extends Model
 {
     protected $fillable = [
         'user_id',
+        'address_id',
         'day_of_week',
         'meal_time',
         'is_off',
@@ -22,6 +23,11 @@ class UserWeeklySchedule extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
     public function items(): HasMany

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('label', 50);
             $table->string('address_line');
-            $table->string('area', 100);
-            $table->string('city', 100)->default('Dhaka');
+            $table->foreignId('area_id')->constrained()->restrictOnDelete();
+            $table->string('city', 100)->default('Sylhet');
             $table->text('notes')->nullable();
             $table->boolean('is_default')->default(false);
             $table->timestamps();

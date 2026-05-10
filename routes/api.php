@@ -1,14 +1,23 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\MealPackageController as AdminMealPackageController;
+use App\Http\Controllers\Api\Admin\DeliveryController;
+use App\Http\Controllers\Api\Admin\AreaController as ManagementAreaController;
+use App\Http\Controllers\Api\Admin\DeliverymanAreaController;
+use App\Http\Controllers\Api\Admin\DeliverymanSubareaController;
+use App\Http\Controllers\Api\Admin\MealOrderController as AdminMealOrderController;
+use App\Http\Controllers\Api\Admin\SettingController;
+use App\Http\Controllers\Api\Admin\SubareaController as ManagementSubareaController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\Admin\WeeklyMenuController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ProfileController;
 use App\Http\Controllers\Api\Admin\WalletController as AdminWalletController;
 use App\Http\Controllers\Api\Customer\AddressController;
+use App\Http\Controllers\Api\Customer\AreaController;
 use App\Http\Controllers\Api\Customer\CalendarController;
 use App\Http\Controllers\Api\Customer\MealPackageController as CustomerMealPackageController;
+use App\Http\Controllers\Api\Customer\MealOrderController as CustomerMealOrderController;
 use App\Http\Controllers\Api\Customer\WalletController as CustomerWalletController;
 use App\Http\Controllers\Api\Customer\WalletPaymentController as CustomerWalletPaymentController;
 use App\Http\Controllers\Api\Customer\WeeklyScheduleController;
@@ -31,6 +40,9 @@ Route::prefix('auth')->group(function (): void {
 Route::prefix('customer')
     ->middleware(['auth.token', 'role:customer'])
     ->group(function (): void {
+        Route::get('/areas', [AreaController::class, 'index']);
+        Route::get('/subareas', [AreaController::class, 'subareas']);
+
         Route::get('/addresses', [AddressController::class, 'index']);
         Route::post('/addresses', [AddressController::class, 'store']);
         Route::get('/addresses/{address}', [AddressController::class, 'show']);
@@ -56,6 +68,9 @@ Route::prefix('customer')
         Route::get('/wallet/transactions', [CustomerWalletController::class, 'transactions']);
         Route::get('/wallet/payment-requests', [CustomerWalletPaymentController::class, 'index']);
         Route::post('/wallet/payment-requests', [CustomerWalletPaymentController::class, 'store']);
+
+        Route::get('/meal-orders', [CustomerMealOrderController::class, 'index']);
+        Route::get('/meal-orders/{mealOrder}', [CustomerMealOrderController::class, 'show']);
     });
 
 Route::prefix('admin')
@@ -72,6 +87,18 @@ Route::prefix('admin')
         Route::get('/weekly-menus/{weeklyMenu}', [WeeklyMenuController::class, 'show']);
         Route::put('/weekly-menus/{weeklyMenu}', [WeeklyMenuController::class, 'update']);
         Route::patch('/weekly-menus/{weeklyMenu}/status', [WeeklyMenuController::class, 'updateStatus']);
+
+        Route::get('/settings', [SettingController::class, 'index']);
+        Route::put('/settings', [SettingController::class, 'update']);
+
+        Route::get('/meal-orders', [AdminMealOrderController::class, 'index']);
+        Route::post('/meal-orders/generate', [AdminMealOrderController::class, 'generate']);
+        Route::get('/meal-orders/{mealOrder}', [AdminMealOrderController::class, 'show']);
+        Route::patch('/meal-orders/{mealOrder}/status', [AdminMealOrderController::class, 'updateStatus']);
+
+        Route::get('/deliveries', [DeliveryController::class, 'index']);
+        Route::get('/deliveries/{delivery}', [DeliveryController::class, 'show']);
+        Route::patch('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus']);
     });
 
 Route::prefix('management')
@@ -88,6 +115,28 @@ Route::prefix('management')
         Route::get('/wallets/{wallet}/transactions', [AdminWalletController::class, 'transactions']);
         Route::post('/wallets/{wallet}/credit', [AdminWalletController::class, 'credit']);
         Route::post('/wallets/{wallet}/debit', [AdminWalletController::class, 'debit']);
+
+        Route::get('/areas', [ManagementAreaController::class, 'index']);
+        Route::post('/areas', [ManagementAreaController::class, 'store']);
+        Route::get('/areas/{area}', [ManagementAreaController::class, 'show']);
+        Route::put('/areas/{area}', [ManagementAreaController::class, 'update']);
+        Route::patch('/areas/{area}/status', [ManagementAreaController::class, 'updateStatus']);
+
+        Route::get('/subareas', [ManagementSubareaController::class, 'index']);
+        Route::post('/subareas', [ManagementSubareaController::class, 'store']);
+        Route::get('/subareas/{subarea}', [ManagementSubareaController::class, 'show']);
+        Route::put('/subareas/{subarea}', [ManagementSubareaController::class, 'update']);
+        Route::patch('/subareas/{subarea}/status', [ManagementSubareaController::class, 'updateStatus']);
+
+        Route::get('/deliveryman-areas', [DeliverymanAreaController::class, 'index']);
+        Route::post('/deliveryman-areas', [DeliverymanAreaController::class, 'store']);
+        Route::put('/deliveryman-areas/{deliverymanArea}', [DeliverymanAreaController::class, 'update']);
+        Route::delete('/deliveryman-areas/{deliverymanArea}', [DeliverymanAreaController::class, 'destroy']);
+
+        Route::get('/deliveryman-subareas', [DeliverymanSubareaController::class, 'index']);
+        Route::post('/deliveryman-subareas', [DeliverymanSubareaController::class, 'store']);
+        Route::put('/deliveryman-subareas/{deliverymanSubarea}', [DeliverymanSubareaController::class, 'update']);
+        Route::delete('/deliveryman-subareas/{deliverymanSubarea}', [DeliverymanSubareaController::class, 'destroy']);
     });
 
 Route::prefix('admin')

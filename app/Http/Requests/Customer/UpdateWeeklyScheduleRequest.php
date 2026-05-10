@@ -10,6 +10,7 @@ class UpdateWeeklyScheduleRequest extends StoreWeeklyScheduleRequest
             'day_of_week' => ['sometimes', 'required', 'in:saturday,sunday,monday,tuesday,wednesday,thursday,friday'],
             'meal_time' => ['sometimes', 'required', 'in:lunch,dinner'],
             'is_off' => ['nullable', 'boolean'],
+            'address_id' => ['nullable', 'integer', 'exists:user_addresses,id'],
             'items' => ['sometimes', 'array'],
             'items.*.meal_package_id' => ['required_with:items', 'integer', 'exists:meal_packages,id', 'distinct'],
             'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],

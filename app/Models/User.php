@@ -88,6 +88,21 @@ class User extends Authenticatable
         return $this->hasMany(UserCalendarOverride::class);
     }
 
+    public function mealOrders(): HasMany
+    {
+        return $this->hasMany(MealOrder::class);
+    }
+
+    public function deliverymanAreas(): HasMany
+    {
+        return $this->hasMany(DeliverymanArea::class, 'deliveryman_id');
+    }
+
+    public function deliverymanSubareas(): HasMany
+    {
+        return $this->hasMany(DeliverymanSubarea::class, 'deliveryman_id');
+    }
+
     public function issueApiToken(string $name = 'default'): array
     {
         $plainTextToken = Str::random(60);

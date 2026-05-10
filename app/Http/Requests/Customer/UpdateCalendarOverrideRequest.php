@@ -10,6 +10,7 @@ class UpdateCalendarOverrideRequest extends StoreCalendarOverrideRequest
             'schedule_date' => ['sometimes', 'required', 'date'],
             'meal_time' => ['sometimes', 'required', 'in:lunch,dinner'],
             'is_off' => ['nullable', 'boolean'],
+            'address_id' => ['nullable', 'integer', 'exists:user_addresses,id'],
             'items' => ['sometimes', 'array'],
             'items.*.meal_package_id' => ['required_with:items', 'integer', 'exists:meal_packages,id', 'distinct'],
             'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],

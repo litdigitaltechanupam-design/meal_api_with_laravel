@@ -29,5 +29,12 @@ class UserSeeder extends Seeder
             'email' => 'customer@example.com',
             'role' => 'customer',
         ]);
+
+        User::factory()->create([
+            'name' => 'Deliveryman User',
+            'phone' => '01700000003',
+            'email' => 'deliveryman@example.com',
+            'role' => 'deliveryman',
+        ]);
     }
 }

@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('user_calendar_overrides', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('address_id')->nullable()->constrained('user_addresses')->nullOnDelete();
             $table->date('schedule_date');
             $table->enum('meal_time', ['lunch', 'dinner']);
             $table->boolean('is_off')->default(false);

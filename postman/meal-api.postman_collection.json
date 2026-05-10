@@ -45,6 +45,34 @@
     {
       "key": "user_calendar_override_id",
       "value": "1"
+    },
+    {
+      "key": "area_id",
+      "value": "1"
+    },
+    {
+      "key": "address_id",
+      "value": "1"
+    },
+    {
+      "key": "deliveryman_area_id",
+      "value": "1"
+    },
+    {
+      "key": "subarea_id",
+      "value": "1"
+    },
+    {
+      "key": "deliveryman_subarea_id",
+      "value": "1"
+    },
+    {
+      "key": "meal_order_id",
+      "value": "1"
+    },
+    {
+      "key": "delivery_id",
+      "value": "1"
     }
   ],
   "item": [
@@ -581,6 +609,40 @@
           }
         },
         {
+          "name": "List Active Areas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/areas"
+          }
+        },
+        {
+          "name": "List Active Subareas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/subareas?area_id={{area_id}}"
+          }
+        },
+        {
           "name": "Create Address",
           "request": {
             "method": "POST",
@@ -600,7 +662,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"label\": \"Home\",\n  \"address_line\": \"House 12, Road 5\",\n  \"area\": \"Mirpur 10\",\n  \"city\": \"Dhaka\",\n  \"notes\": \"Call before delivery\",\n  \"is_default\": true\n}"
+              "raw": "{\n  \"label\": \"Home\",\n  \"address_line\": \"House 12, Road 5\",\n  \"area_id\": {{area_id}},\n  \"subarea_id\": {{subarea_id}},\n  \"city\": \"Sylhet\",\n  \"notes\": \"Call before delivery\",\n  \"is_default\": true\n}"
             },
             "url": "{{base_url}}/api/customer/addresses"
           }
@@ -693,7 +755,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 1 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
+              "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"address_id\": {{address_id}},\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 1 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
             "url": "{{base_url}}/api/customer/weekly-schedules"
           }
@@ -718,7 +780,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
+              "raw": "{\n  \"day_of_week\": \"saturday\",\n  \"meal_time\": \"dinner\",\n  \"address_id\": {{address_id}},\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 2, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
             "url": "{{base_url}}/api/customer/weekly-schedules/{{user_weekly_schedule_id}}"
           }
@@ -760,7 +822,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 6, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
+              "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"address_id\": {{address_id}},\n  \"is_off\": false,\n  \"items\": [\n    { \"meal_package_id\": 6, \"quantity\": 2 },\n    { \"meal_package_id\": 4, \"quantity\": 1 }\n  ]\n}"
             },
             "url": "{{base_url}}/api/customer/calendar"
           }
@@ -785,7 +847,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"is_off\": true,\n  \"items\": []\n}"
+              "raw": "{\n  \"schedule_date\": \"2026-05-10\",\n  \"meal_time\": \"dinner\",\n  \"address_id\": {{address_id}},\n  \"is_off\": true,\n  \"items\": []\n}"
             },
             "url": "{{base_url}}/api/customer/calendar/{{user_calendar_override_id}}"
           }
@@ -898,6 +960,686 @@
               "raw": "{\n  \"amount\": 1000,\n  \"payment_method\": \"bkash\",\n  \"note\": \"Customer top-up request\"\n}"
             },
             "url": "{{base_url}}/api/customer/wallet/payment-requests"
+          }
+        },
+        {
+          "name": "List Customer Meal Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/meal-orders"
+          }
+        },
+        {
+          "name": "Show Customer Meal Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/customer/meal-orders/{{meal_order_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Management Areas",
+      "item": [
+        {
+          "name": "List Areas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/areas"
+          }
+        },
+        {
+          "name": "Create Area",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/areas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mirabazar\",\n  \"city\": \"Sylhet\",\n  \"zone\": \"Central\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Show Area",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/areas/{{area_id}}"
+          }
+        },
+        {
+          "name": "Update Area",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/areas/{{area_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mirabazar Updated\",\n  \"city\": \"Sylhet\",\n  \"zone\": \"Central\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Area Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/areas/{{area_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Management Deliveryman Areas",
+      "item": [
+        {
+          "name": "List Deliveryman Areas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-areas"
+          }
+        },
+        {
+          "name": "Create Deliveryman Area",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-areas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deliveryman_id\": 4,\n  \"area_id\": {{area_id}},\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Deliveryman Area",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-areas/{{deliveryman_area_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Deliveryman Area",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-areas/{{deliveryman_area_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Management Subareas",
+      "item": [
+        {
+          "name": "List Subareas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/subareas?area_id={{area_id}}"
+          }
+        },
+        {
+          "name": "Create Subarea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/subareas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"area_id\": {{area_id}},\n  \"name\": \"Jinda Bazar Office Zone\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Show Subarea",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/subareas/{{subarea_id}}"
+          }
+        },
+        {
+          "name": "Update Subarea",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/subareas/{{subarea_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"area_id\": {{area_id}},\n  \"name\": \"Jinda Bazar Office Zone Updated\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Subarea Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/subareas/{{subarea_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Management Deliveryman Subareas",
+      "item": [
+        {
+          "name": "List Deliveryman Subareas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-subareas"
+          }
+        },
+        {
+          "name": "Create Deliveryman Subarea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-subareas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deliveryman_id\": 4,\n  \"subarea_id\": {{subarea_id}},\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Deliveryman Subarea",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-subareas/{{deliveryman_subarea_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Deliveryman Subarea",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/management/deliveryman-subareas/{{deliveryman_subarea_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Meal Orders",
+      "item": [
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/settings"
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/settings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_charge_enabled\": true,\n  \"delivery_charge_amount\": 20\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate Meal Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/meal-orders/generate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedule_date\": \"2026-05-10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Meal Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/meal-orders?schedule_date=2026-05-10"
+          }
+        },
+        {
+          "name": "Show Meal Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/meal-orders/{{meal_order_id}}"
+          }
+        },
+        {
+          "name": "Update Meal Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/meal-orders/{{meal_order_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"prepared\",\n  \"note\": \"Kitchen prepared this order\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Deliveries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/deliveries?schedule_date=2026-05-10"
+          }
+        },
+        {
+          "name": "Show Delivery",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/deliveries/{{delivery_id}}"
+          }
+        },
+        {
+          "name": "Mark Delivery Picked",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/deliveries/{{delivery_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"picked\",\n  \"note\": \"Deliveryman picked the meal\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Delivery Delivered",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/deliveries/{{delivery_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"delivered\",\n  \"note\": \"Meal delivered successfully\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Delivery Failed",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/deliveries/{{delivery_id}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"failed\",\n  \"note\": \"Customer was unavailable\"\n}"
+            }
           }
         }
       ]

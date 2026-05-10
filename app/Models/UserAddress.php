@@ -11,7 +11,8 @@ class UserAddress extends Model
         'user_id',
         'label',
         'address_line',
-        'area',
+        'area_id',
+        'subarea_id',
         'city',
         'notes',
         'is_default',
@@ -24,5 +25,15 @@ class UserAddress extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class);
+    }
+
+    public function subarea(): BelongsTo
+    {
+        return $this->belongsTo(Subarea::class);
     }
 }
