@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Deliveryman;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeliveryIndexRequest extends FormRequest
+class DeliveryListRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,15 +15,10 @@ class DeliveryIndexRequest extends FormRequest
     {
         return [
             'status' => ['nullable', 'in:assigned,picked,delivered,failed'],
-            'deliveryman_id' => ['nullable', 'integer', 'exists:users,id'],
             'schedule_date' => ['nullable', 'date'],
             'meal_time' => ['nullable', 'in:lunch,dinner'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date'],
-            'user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'area_id' => ['nullable', 'integer', 'exists:areas,id'],
-            'subarea_id' => ['nullable', 'integer', 'exists:subareas,id'],
         ];
     }
 }

@@ -10,6 +10,7 @@ use App\Models\MealPackage;
 use App\Models\UserAddress;
 use App\Models\UserCalendarOverride;
 use App\Models\WeeklyMenu;
+use App\Services\CutoffService;
 use App\Services\UserMealCalendarService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +19,10 @@ use Illuminate\Support\Facades\DB;
 
 class CalendarController extends Controller
 {
-    public function __construct(private UserMealCalendarService $calendarService)
+    public function __construct(
+        private UserMealCalendarService $calendarService,
+        private CutoffService $cutoffService,
+    )
     {
     }
 
@@ -65,6 +69,7 @@ class CalendarController extends Controller
     public function store(StoreCalendarOverrideRequest $request): JsonResponse
     {
         $payload = $this->normalizePayload($request->validated());
+        $this->cutoffService->ensureCustomerCalendarChangeAllowed($payload['schedule_date'], $payload['meal_time']);
         $this->ensureAddressOwnership($request, $payload['address_id'], $payload['is_off']);
         $this->ensureAllowedSelection($payload['schedule_date'], $payload['meal_time'], $payload['is_off'], $payload['items']);
 
@@ -108,6 +113,7 @@ class CalendarController extends Controller
             ],
             $request->validated()
         ));
+        $this->cutoffService->ensureCustomerCalendarChangeAllowed($payload['schedule_date'], $payload['meal_time']);
         $this->ensureAddressOwnership($request, $payload['address_id'], $payload['is_off']);
         $this->ensureAllowedSelection($payload['schedule_date'], $payload['meal_time'], $payload['is_off'], $payload['items']);
 

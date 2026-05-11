@@ -5,14 +5,19 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\GenerateMealOrdersRequest;
 use App\Http\Requests\Admin\MealOrderIndexRequest;
+use App\Http\Requests\Admin\StoreMealOrderRefundRequest;
 use App\Http\Requests\Admin\UpdateMealOrderStatusRequest;
 use App\Models\MealOrder;
 use App\Services\MealOrderService;
+use App\Services\WalletService;
 use Illuminate\Http\JsonResponse;
 
 class MealOrderController extends Controller
 {
-    public function __construct(private MealOrderService $mealOrderService)
+    public function __construct(
+        private MealOrderService $mealOrderService,
+        private WalletService $walletService,
+    )
     {
     }
 
@@ -67,5 +72,35 @@ class MealOrderController extends Controller
             'message' => 'Meal order status updated successfully.',
             'meal_order' => $mealOrder->fresh()->load(['user', 'address.area', 'address.subarea', 'items.mealPackage', 'delivery.deliveryman', 'walletTransaction']),
         ]);
+    }
+
+    public function refund(StoreMealOrderRefundRequest $request, MealOrder $mealOrder): JsonResponse
+    {
+        abort_if(! $mealOrder->is_wallet_deducted, 422, 'This order has no wallet deduction to refund.');
+        abort_if($mealOrder->is_refunded, 422, 'This order has already been refunded.');
+
+        $wallet = $this->walletService->getOrCreateWallet($mealOrder->user);
+        $transaction = $this->walletService->credit($wallet, [
+            'type' => 'refund',
+            'amount' => $mealOrder->total_amount,
+            'reference_type' => 'meal_order',
+            'reference_id' => $mealOrder->id,
+            'payment_method' => 'system',
+            'status' => 'completed',
+            'note' => $request->validated('note'),
+            'created_by' => $request->user()->id,
+        ]);
+
+        $mealOrder->update([
+            'is_refunded' => true,
+            'refunded_at' => now(),
+            'note' => $request->validated('note'),
+        ]);
+
+        return response()->json([
+            'message' => 'Meal order refunded successfully.',
+            'meal_order' => $mealOrder->fresh()->load(['user', 'address.area', 'address.subarea', 'items.mealPackage', 'delivery.deliveryman', 'walletTransaction']),
+            'wallet_transaction' => $transaction,
+        ], 201);
     }
 }

@@ -15,6 +15,7 @@ class MealOrderService
     public function __construct(
         private WalletService $walletService,
         private DeliveryAssignmentService $deliveryAssignmentService,
+        private NotificationService $notificationService,
     ) {
     }
 
@@ -36,6 +37,7 @@ class MealOrderService
 
         $generated = [];
         $skipped = [];
+        $deliverymanBatchCounts = [];
 
         foreach ($customers as $customer) {
             foreach (['lunch', 'dinner'] as $mealTime) {
@@ -88,10 +90,21 @@ class MealOrderService
                         'meal_time' => $mealTime,
                         'reason' => 'Insufficient wallet balance.',
                     ];
+
+                    $this->notificationService->sendToUser(
+                        $customer,
+                        'meal_order_skipped_low_balance',
+                        'Order Not Confirmed',
+                        'আজকের '.ucfirst($mealTime).' order balance কম থাকার কারণে confirm হয়নি।',
+                        [
+                            'schedule_date' => $date->toDateString(),
+                            'meal_time' => $mealTime,
+                        ]
+                    );
                     continue;
                 }
 
-                $generated[] = DB::transaction(function () use ($customer, $slot, $date, $mealTime, $subtotal, $deliveryCharge, $totalAmount, $actor, $wallet) {
+                $generated[] = DB::transaction(function () use ($customer, $slot, $date, $mealTime, $subtotal, $deliveryCharge, $totalAmount, $actor, $wallet, &$deliverymanBatchCounts) {
                     $order = MealOrder::query()->create([
                         'user_id' => $customer->id,
                         'address_id' => $slot['address']->id,
@@ -134,16 +147,34 @@ class MealOrderService
                         'note' => $deliverymanId ? 'Deliveryman auto assigned from subarea mapping.' : 'No deliveryman assigned automatically.',
                     ]);
 
+                    if ($deliverymanId) {
+                        $deliverymanBatchCounts[$mealTime][$deliverymanId] = ($deliverymanBatchCounts[$mealTime][$deliverymanId] ?? 0) + 1;
+                    }
+
                     $order->update([
                         'wallet_transaction_id' => $transaction->id,
                         'is_wallet_deducted' => true,
                         'deducted_at' => now(),
                     ]);
 
+                    $this->notificationService->sendToUser(
+                        $customer,
+                        'meal_order_created',
+                        'Order Confirmed',
+                        'আজকের '.ucfirst($mealTime).' order confirmed হয়েছে।',
+                        [
+                            'meal_order_id' => $order->id,
+                            'schedule_date' => $date->toDateString(),
+                            'meal_time' => $mealTime,
+                        ]
+                    );
+
                     return $order->fresh()->load(['address.area', 'address.subarea', 'items.mealPackage', 'delivery.deliveryman', 'walletTransaction']);
                 });
             }
         }
+
+        $this->sendGenerationNotifications($date->toDateString(), $generated, $skipped, $deliverymanBatchCounts, $actor);
 
         return [
             'generated' => $generated,
@@ -187,5 +218,70 @@ class MealOrderService
         }
 
         return round((float) (Setting::query()->where('key', 'delivery_charge_amount')->value('value') ?? 0), 2);
+    }
+
+    private function sendGenerationNotifications(string $scheduleDate, array $generated, array $skipped, array $deliverymanBatchCounts, User $actor): void
+    {
+        foreach (['lunch', 'dinner'] as $mealTime) {
+            $generatedCount = collect($generated)->filter(fn ($order) => $order->meal_time === $mealTime)->count();
+
+            if ($generatedCount > 0) {
+                $managementUsers = User::query()
+                    ->whereIn('role', ['admin', 'manager'])
+                    ->where('status', 'active')
+                    ->get();
+
+                $this->notificationService->sendToUsers(
+                    $managementUsers,
+                    'meal_order_generation_summary',
+                    ucfirst($mealTime).' Orders Generated',
+                    $scheduleDate.' '.ucfirst($mealTime).' orders generated: '.$generatedCount,
+                    [
+                        'schedule_date' => $scheduleDate,
+                        'meal_time' => $mealTime,
+                        'generated_count' => $generatedCount,
+                        'created_by' => $actor->id,
+                    ]
+                );
+            }
+
+            foreach ($deliverymanBatchCounts[$mealTime] ?? [] as $deliverymanId => $count) {
+                $deliveryman = User::query()->where('id', $deliverymanId)->where('role', 'deliveryman')->first();
+                if (! $deliveryman) {
+                    continue;
+                }
+
+                $this->notificationService->sendToUser(
+                    $deliveryman,
+                    'delivery_batch_assigned',
+                    ucfirst($mealTime).' Deliveries Assigned',
+                    'আজকের '.ucfirst($mealTime).' এর জন্য '.$count.'টি delivery assign হয়েছে।',
+                    [
+                        'schedule_date' => $scheduleDate,
+                        'meal_time' => $mealTime,
+                        'assigned_count' => $count,
+                    ]
+                );
+            }
+        }
+
+        $unassignedCount = collect($generated)->filter(fn ($order) => optional($order->delivery)->deliveryman_id === null)->count();
+        if ($unassignedCount > 0) {
+            $managementUsers = User::query()
+                ->whereIn('role', ['admin', 'manager'])
+                ->where('status', 'active')
+                ->get();
+
+            $this->notificationService->sendToUsers(
+                $managementUsers,
+                'unassigned_delivery_alert',
+                'Unassigned Deliveries Found',
+                $unassignedCount.'টি delivery এখনো unassigned আছে',
+                [
+                    'schedule_date' => $scheduleDate,
+                    'unassigned_count' => $unassignedCount,
+                ]
+            );
+        }
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('label', 50);
             $table->string('address_line');
             $table->foreignId('area_id')->constrained()->restrictOnDelete();
+            $table->foreignId('subarea_id')->nullable()->constrained()->nullOnDelete();
             $table->string('city', 100)->default('Sylhet');
             $table->text('notes')->nullable();
             $table->boolean('is_default')->default(false);

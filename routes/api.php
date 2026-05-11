@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\Admin\MealPackageController as AdminMealPackageController;
 use App\Http\Controllers\Api\Admin\DeliveryController;
 use App\Http\Controllers\Api\Admin\AreaController as ManagementAreaController;
+use App\Http\Controllers\Api\Admin\DashboardController as ManagementDashboardController;
 use App\Http\Controllers\Api\Admin\DeliverymanAreaController;
 use App\Http\Controllers\Api\Admin\DeliverymanSubareaController;
 use App\Http\Controllers\Api\Admin\MealOrderController as AdminMealOrderController;
 use App\Http\Controllers\Api\Admin\SettingController;
+use App\Http\Controllers\Api\Admin\ReportController as ManagementReportController;
 use App\Http\Controllers\Api\Admin\SubareaController as ManagementSubareaController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\Admin\WeeklyMenuController;
@@ -16,11 +18,19 @@ use App\Http\Controllers\Api\Admin\WalletController as AdminWalletController;
 use App\Http\Controllers\Api\Customer\AddressController;
 use App\Http\Controllers\Api\Customer\AreaController;
 use App\Http\Controllers\Api\Customer\CalendarController;
+use App\Http\Controllers\Api\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Api\Customer\MealPackageController as CustomerMealPackageController;
 use App\Http\Controllers\Api\Customer\MealOrderController as CustomerMealOrderController;
+use App\Http\Controllers\Api\Customer\NotificationController as CustomerNotificationController;
+use App\Http\Controllers\Api\Customer\ReportController as CustomerReportController;
 use App\Http\Controllers\Api\Customer\WalletController as CustomerWalletController;
 use App\Http\Controllers\Api\Customer\WalletPaymentController as CustomerWalletPaymentController;
 use App\Http\Controllers\Api\Customer\WeeklyScheduleController;
+use App\Http\Controllers\Api\Deliveryman\DeliveryController as DeliverymanDeliveryController;
+use App\Http\Controllers\Api\Deliveryman\DashboardController as DeliverymanDashboardController;
+use App\Http\Controllers\Api\Deliveryman\NotificationController as DeliverymanNotificationController;
+use App\Http\Controllers\Api\Deliveryman\ReportController as DeliverymanReportController;
+use App\Http\Controllers\Api\Admin\NotificationController as ManagementNotificationController;
 use App\Http\Controllers\Api\Payment\WalletPaymentCallbackController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +81,33 @@ Route::prefix('customer')
 
         Route::get('/meal-orders', [CustomerMealOrderController::class, 'index']);
         Route::get('/meal-orders/{mealOrder}', [CustomerMealOrderController::class, 'show']);
+
+        Route::get('/dashboard/summary', [CustomerDashboardController::class, 'summary']);
+        Route::get('/reports/meal-orders', [CustomerReportController::class, 'mealOrders']);
+        Route::get('/reports/wallets', [CustomerReportController::class, 'wallets']);
+        Route::get('/reports/refunds', [CustomerReportController::class, 'refunds']);
+
+        Route::get('/notifications', [CustomerNotificationController::class, 'index']);
+        Route::get('/notifications/{notification}', [CustomerNotificationController::class, 'show']);
+        Route::patch('/notifications/{notification}/read', [CustomerNotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/read-all', [CustomerNotificationController::class, 'markAllAsRead']);
+    });
+
+Route::prefix('deliveryman')
+    ->middleware(['auth.token', 'role:deliveryman'])
+    ->group(function (): void {
+        Route::get('/deliveries', [DeliverymanDeliveryController::class, 'index']);
+        Route::get('/deliveries/today', [DeliverymanDeliveryController::class, 'today']);
+        Route::get('/deliveries/{delivery}', [DeliverymanDeliveryController::class, 'show']);
+        Route::patch('/deliveries/{delivery}/status', [DeliverymanDeliveryController::class, 'updateStatus']);
+
+        Route::get('/dashboard/summary', [DeliverymanDashboardController::class, 'summary']);
+        Route::get('/reports/deliveries', [DeliverymanReportController::class, 'deliveries']);
+
+        Route::get('/notifications', [DeliverymanNotificationController::class, 'index']);
+        Route::get('/notifications/{notification}', [DeliverymanNotificationController::class, 'show']);
+        Route::patch('/notifications/{notification}/read', [DeliverymanNotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/read-all', [DeliverymanNotificationController::class, 'markAllAsRead']);
     });
 
 Route::prefix('admin')
@@ -137,6 +174,20 @@ Route::prefix('management')
         Route::post('/deliveryman-subareas', [DeliverymanSubareaController::class, 'store']);
         Route::put('/deliveryman-subareas/{deliverymanSubarea}', [DeliverymanSubareaController::class, 'update']);
         Route::delete('/deliveryman-subareas/{deliverymanSubarea}', [DeliverymanSubareaController::class, 'destroy']);
+
+        Route::post('/meal-orders/{mealOrder}/refund', [AdminMealOrderController::class, 'refund']);
+        Route::patch('/deliveries/{delivery}/assign', [DeliveryController::class, 'assign']);
+
+        Route::get('/dashboard/summary', [ManagementDashboardController::class, 'summary']);
+        Route::get('/reports/meal-orders', [ManagementReportController::class, 'mealOrders']);
+        Route::get('/reports/deliveries', [ManagementReportController::class, 'deliveries']);
+        Route::get('/reports/wallets', [ManagementReportController::class, 'wallets']);
+        Route::get('/reports/refunds', [ManagementReportController::class, 'refunds']);
+
+        Route::get('/notifications', [ManagementNotificationController::class, 'index']);
+        Route::get('/notifications/{notification}', [ManagementNotificationController::class, 'show']);
+        Route::patch('/notifications/{notification}/read', [ManagementNotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/read-all', [ManagementNotificationController::class, 'markAllAsRead']);
     });
 
 Route::prefix('admin')

@@ -93,6 +93,11 @@ class User extends Authenticatable
         return $this->hasMany(MealOrder::class);
     }
 
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(Delivery::class, 'deliveryman_id');
+    }
+
     public function deliverymanAreas(): HasMany
     {
         return $this->hasMany(DeliverymanArea::class, 'deliveryman_id');
@@ -101,6 +106,11 @@ class User extends Authenticatable
     public function deliverymanSubareas(): HasMany
     {
         return $this->hasMany(DeliverymanSubarea::class, 'deliveryman_id');
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
     }
 
     public function issueApiToken(string $name = 'default'): array

@@ -20,7 +20,9 @@ class MealOrder extends Model
         'total_amount',
         'wallet_transaction_id',
         'is_wallet_deducted',
+        'is_refunded',
         'deducted_at',
+        'refunded_at',
         'note',
     ];
 
@@ -30,7 +32,9 @@ class MealOrder extends Model
         'delivery_charge' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'is_wallet_deducted' => 'boolean',
+        'is_refunded' => 'boolean',
         'deducted_at' => 'datetime',
+        'refunded_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

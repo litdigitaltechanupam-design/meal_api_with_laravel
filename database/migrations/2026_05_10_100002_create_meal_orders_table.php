@@ -20,7 +20,9 @@ return new class extends Migration
             $table->decimal('total_amount', 12, 2)->default(0);
             $table->foreignId('wallet_transaction_id')->nullable()->constrained('wallet_transactions')->nullOnDelete();
             $table->boolean('is_wallet_deducted')->default(false);
+            $table->boolean('is_refunded')->default(false);
             $table->timestamp('deducted_at')->nullable();
+            $table->timestamp('refunded_at')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
 

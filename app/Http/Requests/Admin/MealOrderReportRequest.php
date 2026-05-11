@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeliveryIndexRequest extends FormRequest
+class MealOrderReportRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,14 +14,12 @@ class DeliveryIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['nullable', 'in:assigned,picked,delivered,failed'],
-            'deliveryman_id' => ['nullable', 'integer', 'exists:users,id'],
-            'schedule_date' => ['nullable', 'date'],
-            'meal_time' => ['nullable', 'in:lunch,dinner'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date'],
+            'schedule_date' => ['nullable', 'date'],
+            'meal_time' => ['nullable', 'in:lunch,dinner'],
+            'status' => ['nullable', 'in:confirmed,prepared,out_for_delivery,delivered,failed,cancelled'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'phone' => ['nullable', 'string', 'max:30'],
             'area_id' => ['nullable', 'integer', 'exists:areas,id'],
             'subarea_id' => ['nullable', 'integer', 'exists:subareas,id'],
         ];
